@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import java.awt.TrayIcon.MessageType;
 public class Pomodoro implements ActionListener{
 	JFrame frame = new JFrame();
 	JButton startButton = new JButton("START");
@@ -28,7 +29,12 @@ public class Pomodoro implements ActionListener{
 			minutes_string = String.format("%02d", minutes);
 			timeLabel.setText(minutes_string + ":" + seconds_string);
 			if(elapsedTime == 0) {
-				pomodoroReset();
+				try {
+					pomodoroReset();
+				} catch (AWTException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			}
 		}
 		
@@ -112,7 +118,7 @@ public class Pomodoro implements ActionListener{
 		timeLabel.setText(minutes_string + ":" + seconds_string);
 		task.setText("STUDY TIME");
 	}
-	void pomodoroReset() {
+	void pomodoroReset() throws AWTException {
 			pomodoros++;
 			if(pomodoros % 8 == 0 && pomodoros > 0) {
 				elapsedTime = 900000;
@@ -123,7 +129,7 @@ public class Pomodoro implements ActionListener{
 				minutes_string = String.format("%02d", minutes);
 				timeLabel.setText(minutes_string + ":" + seconds_string);
 				task.setText("BREAK TIME");
-				this.infoBox("It's time to take a break", "reset");
+				this.infoBox("It's time to take a break", "15 minutes break");
 			}
 			else if(pomodoros % 2 == 0) {
 				elapsedTime = 1500000;
@@ -133,7 +139,7 @@ public class Pomodoro implements ActionListener{
 				minutes_string = String.format("%02d", minutes);
 				timeLabel.setText(minutes_string + ":" + seconds_string);
 				task.setText("STUDY TIME");
-				this.infoBox("It's time to study again", "reset");
+				this.infoBox("It's time to study again", "25 minutes studying");
 			}
 			else {
 				elapsedTime = 300000;
@@ -143,12 +149,19 @@ public class Pomodoro implements ActionListener{
 				minutes_string = String.format("%02d", minutes);
 				timeLabel.setText(minutes_string + ":" + seconds_string);
 				task.setText("BREAK TIME");
-				this.infoBox("It's time to take a break", "reset");
+				this.infoBox("It's time to take a break", "5 minutes break");
 			}
 	}
 
-	void infoBox(String infoMessage, String titleBar) {
+	void infoBox(String infoMessage, String titleBar) throws AWTException {
+		SystemTray tray = SystemTray.getSystemTray();
+		Image image = Toolkit.getDefaultToolkit().createImage("PomodoroPic.jpg");
+		TrayIcon trayIcon = new TrayIcon(image, "Timer Up");
+		trayIcon.setImageAutoSize(true);
+		trayIcon.setToolTip("System tray icon demo");
+		tray.add(trayIcon);
 		
-		JOptionPane.showMessageDialog(null, infoMessage, "InfoBox: " + titleBar, JOptionPane.INFORMATION_MESSAGE);
+		trayIcon.displayMessage(infoMessage, titleBar, MessageType.INFO);
+		
 	}
 }
